@@ -1,14 +1,14 @@
-# Constraining Multi-scale Pairwise Features between Encoder and Decoder Using Contrastive Learning for Unpaired Image-to-Image Translation
+# Rethinking the Paradigm of Content Constraints in GAN-based Unpaired Image-to-Image Translation
 
 This repository contains the code for the paper _"Rethinking the Paradigm of Content Constraints in GAN-based Unpaired Image-to-Image Translation"_, AAAI 2024.
 
-_**Abstract** - Contrastive learning (CL) has shown great potential in image-to-image translation (I2I). Current CL-based I2I methods usually re-exploit the encoder of the generator to maximize the mutual information between the input and generated images, which does not exert an active effect on the decoder part. In addition, though negative samples play a crucial role in CL, most existing methods adopt a random sampling strategy, which may be less effective. In this paper, we rethink the CL paradigm in the unpaired I2I tasks from two perspectives and propose a new one-sided image translation framework called EnCo. First, we present an explicit constraint on the multi-scale pairwise features between the encoder and decoder of the generator to guarantee the semantic consistency of the input and generated images. Second, we propose a discriminative attention-guided negative sampling strategy to replace the random negative sampling, which significantly improves the performance of the generative model with an almost negligible computational overhead. Compared with existing methods, EnCo acts more effective and efficient. Extensive experiments on several popular I2I datasets demonstrate the effectiveness and advantages of our proposed approach, and we achieve several state-of-the-art compared to previous methods._
+_**Abstract** - In an unpaired setting, lacking sufficient content constraints for image-to-image translation (I2I) tasks, GAN-based approaches are usually prone to model collapse. Current solutions can be divided into two categories, reconstruction-based and Siamese network-based. The former requires that the transformed or transforming image can be perfectly converted back to the original image, which is sometimes too strict and limits the generative performance. The latter involves feeding the original and generated images into a feature extractor and then matching their outputs. This is not efficient enough, and a universal feature extractor is not easily available. In this paper, we propose EnCo, a simple but efficient way to maintain the content by constraining the representational similarity in the latent space of patch-level features from the same stage of the **En**coder and de**Co**der of the generator. For the similarity function, we use a simple MSE loss instead of contrastive loss, which is currently widely used in I2I tasks. Benefits from the design, EnCo training is extremely efficient, while the features from the encoder produce a more positive effect on the decoding, leading to more satisfying generations. In addition, we rethink the role played by discriminators in sampling patches and propose a discriminative attention-guided (DAG) patch sampling strategy to replace random sampling. DAG is parameter-free and only requires negligible computational overhead, while significantly improving the performance of the model. Extensive experiments on multiple datasets demonstrate the effectiveness and advantages of EnCo, and we achieve multiple state-of-the-art compared to previous methods._
 
-![image-20230520172351399](assets/image-20230520172351399.png)
-*Figure 1: A comparison of different CL-based image translation frameworks.*
+![image-20230520172351399](assets/arch.jpg)
+*Figure 1: (a) The overview of EnCo framework. EnCo constrain the content by agreeing on the representational similarity in the latent space of features from the same stage of the encoder and decoder of the generator. (b) The architecture of the projection. (c) The architecture of the prediction.*
 
 ## Evaluation results
-<img src="assets/image-20230520172441992.png" alt="image-20230520172441992" style="zoom: 67%;" />
+<img src="assets/vis_results.jpg" alt="image-20230520172441992" style="zoom: 67%;" />
 
 *Table 1: Comparison with the state-of-the-art methods on unpaired image translation.*
 
@@ -56,7 +56,7 @@ The dataset will be saved at `./datasets/cityscapes/`.
 - Train the EnCo model:
 
 ```bash
-python train.py --dataroot ./datasets/cityscapes --name CITY_EnCo --model enco --nce_layers 3,7,13,18,24,28 --batch_size 1 --n_epochs 100 --n_epochs_decay 100 --num_threads 0 --lambda_IDT 10 --lambda_NCE 2 --netF cam_mlp_sample_s --stop_gradient True --gan_mode lsgan --lr_G 5e-5 --lr_F 5e-5 --lr_D 2e-4 --warmup_epochs 20 --flip_equivariance True
+python train.py --dataroot ./datasets/cityscapes --name CITY_EnCo --model enco --nce_layers 3,7,13,18,24,28 --batch_size 1 --n_epochs 100 --n_epochs_decay 100 --num_threads 0 --lambda_IDT 10 --lambda_NCE 2 --netF mlp_sample_with_DAG --lr_G 5e-5 --lr_F 5e-5 --lr_D 2e-4 --warmup_epochs 20 --flip_equivariance True
 ```
 
 The checkpoints will be stored at `./checkpoints/CITY_EnCo/web`.
@@ -64,7 +64,7 @@ The checkpoints will be stored at `./checkpoints/CITY_EnCo/web`.
 - Test the EnCo model:
 
 ```bash
-python test.py --dataroot ./datasets/cityscapes --name CITY_EnCo --EnCo_mode EnCo --model enco --phase test
+python test.py --dataroot ./datasets/cityscapes --name CITY_EnCo --model enco --phase test
 ```
 
 The test results will be saved to a html file here: `./results/cityscapes/latest_train/index.html`.
