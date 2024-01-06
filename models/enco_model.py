@@ -280,4 +280,6 @@ class EnCoModel(BaseModel):
         return total_nce_loss / n_layers * 2
 
     def mse_loss(self, feat_q, feat_k):
+        if self.opt.stop_gradient:
+            feat_k = feat_k.detach()
         return 2 - 2 * F.cosine_similarity(feat_q, feat_k, dim=-1)
