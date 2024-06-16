@@ -74,11 +74,14 @@ The test results will be saved to a html file here: `./results/cityscapes/latest
 If you use our code or our results, please consider citing our paper. Thanks in advance!
 
 ```
-@article{cai2022constraining,
-  title={Constraining Multi-scale Pairwise Features between Encoder and Decoder Using Contrastive Learning for Unpaired Image-to-Image Translation},
+@inproceedings{cai2024rethinking,
+  title={Rethinking the Paradigm of Content Constraints in Unpaired Image-to-Image Translation},
   author={Cai, Xiuding and Zhu, Yaoyao and Miao, Dong and Fu, Linjie and Yao, Yu},
-  journal={arXiv preprint arXiv:2211.10867},
-  year={2022}
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume={38},
+  number={2},
+  pages={891--899},
+  year={2024}
 }
 ```
 
